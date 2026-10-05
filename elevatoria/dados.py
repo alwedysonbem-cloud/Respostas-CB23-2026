@@ -29,7 +29,8 @@ from fornecido.cronometro import cronometrar
 #: dígitos) e `resto` (o restante da linha, começando por um caractere que não é espaço).
 #: As partes são separadas por um ou mais espaços. A linha inteira deve casar: o padrão é
 #: aplicado com `LINHA.fullmatch(linha)`.
-LINHA: re.Pattern = None  # type: ignore[assignment]  # TODO issue #1
+
+LINHA: re.Pattern(r""" """, re.VERBOSE)  # type: ignore[assignment]  # TODO issue #1
 
 
 @dataclass(frozen=True)
@@ -48,6 +49,14 @@ def valida_tag(s: str) -> bool:
     Use `fullmatch`. Válidas: `"PT101"`, `"FT201"`, `"B1"`. Inválidas: `"pt101"`, `"PT"`,
     `"PT1010"`, `"101PT"` e `"PT101 "` (sobra de caracteres).
     """
+    valid={"PT101", "FT201", "B1"}
+    resu={}
+    for i in range(3):
+        if type(resu.append(re.fullmatch(valid[i], s)))==re.Match:
+            return True
+        else:
+            continue
+    return False
     raise NotImplementedError("issue #1: valida_tag")
 
 
