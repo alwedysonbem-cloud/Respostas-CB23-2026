@@ -18,13 +18,9 @@ from typing import Callable
 import numpy as np
 
 from serie import SerieTemporal
-dire_alv = os.path.abspath(
-    './Respostas-CB23-2026/fornecido'
-)
-if dire_alv not in sys.path:
-    sys.path.append(dire_alv)
 
-from cronometro import cronometrar
+from fornecido.cronometro import cronometrar
+
 
 # ---------------------------------------------------------------------------------------
 # Issue #1: leitor do log
@@ -190,6 +186,15 @@ def contagem_por_tag(registros: list[Registro]) -> dict[str, int]:
     Use uma compreensão de dicionário sobre o conjunto das tags, obtido por uma compreensão
     de conjunto. Lista vazia devolve `{}`.
     """
+    # Crio um conjunto com um laço for para colocar todas as tags dos Registros, usando conjunto
+    # para poder não haver repetições de tags iguais
+    tag={k.tag for k in registros}
+
+    # Usando o sum() para somar uma lista de 1's colocados na lista com a condição do r.tag estar
+    # sendo uma repetição dos itens dentro de tag (parte do for tg in tag)
+    tasg = {tg: sum(1 for r in registros if r.tag == tg) for tg in tag}
+
+    return tasg
     raise NotImplementedError("issue #1: contagem_por_tag")
 
 
@@ -199,6 +204,17 @@ def serie(registros: list[Registro], tag: str, chave: str) -> SerieTemporal:
     Os registros da tag sem essa chave (por exemplo, os alarmes de PT102, que não têm
     `contagens`) são ignorados. Crie a série com `SerieTemporal.de_lista`.
     """
+
+    # Crio uma lista com os valores que têm em seu r (da classe Registro) e possuem a chave como  
+    # sendo a chave dada no argumento da função. 
+    valores=[
+        r.valores[chave]
+        for r in registros
+        if r.tag==tag and chave in r.valores
+    ]
+
+    return SerieTemporal.de_lista(valores)
+
     raise NotImplementedError("issue #1: serie")
 
 
@@ -211,6 +227,10 @@ def criar_conversores(escalas: dict[str, float]) -> dict[str, Callable[[float], 
     Cada `f` é uma lambda. Cuidado com o *late binding*: cada função deve usar o fator da
     sua tag, e não o último fator do dicionário (veja a issue #2 no enunciado).
     """
+    # Criando a expressão lambda com o fator f (um valor dado nas chaves do dict escalas)
+    # e um c que sera colocado qndo a função lambda for chamada (parte de Callable[[float], float])
+    # que deve ser chamável depois 
+    return {tag: (lambda c, f=fator: c * f) for tag, fator in escalas.items()}
     raise NotImplementedError("issue #2: criar_conversores")
 
 
